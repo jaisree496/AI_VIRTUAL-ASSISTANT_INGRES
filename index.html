@@ -1,63 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>INGRES AI Chatbot</title>
-<link rel="stylesheet" href="/static/style.css">
+<title>AI Chatbot</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
 </head>
 
 <body>
 
-<div class="container">
+<div class="chat-container">
 
-<h2>INGRES Virtual Assistant</h2>
-
-<div id="chatbox"></div>
-
-<div class="input-area">
-<input type="text" id="userInput" placeholder="Ask something about INGRES...">
-<button onclick="sendMessage()">Send</button>
+<div class="chat-header">
+AI Chatbot
 </div>
 
-<p class="suggestions">
-Try asking:
-<br>
-• What services does INGRES provide?
-<br>
-• I have a login problem
-<br>
-• How to register a complaint?
-</p>
+<div id="chat-box" class="chat-box"></div>
+
+<form id="chat-form" class="input-area">
+
+<input id="msg" name="msg" placeholder="Type your message..." required>
+
+<button type="submit">Send</button>
+
+</form>
 
 </div>
 
 <script>
 
-function sendMessage(){
+document.getElementById("chat-form").addEventListener("submit", async function(e){
 
-let userText = document.getElementById("userInput").value;
+e.preventDefault()
 
-if(userText === "") return;
+let msg=document.getElementById("msg").value
 
-let chatbox = document.getElementById("chatbox");
+let chat=document.getElementById("chat-box")
 
-chatbox.innerHTML += "<div class='user'>You: "+userText+"</div>";
+chat.innerHTML+=`<div class="user"><span>${msg}</span></div>`
 
-fetch("/get",{
+let response=await fetch("/get",{
+
 method:"POST",
-headers:{
-"Content-Type":"application/x-www-form-urlencoded"
-},
-body:"msg="+encodeURIComponent(userText)
+headers:{"Content-Type":"application/x-www-form-urlencoded"},
+body:"msg="+msg
+
 })
 
-.then(res=>res.json())
-.then(data=>{
-chatbox.innerHTML += "<div class='bot'>Bot: "+data+"</div>";
-chatbox.scrollTop = chatbox.scrollHeight;
-});
+let data=await response.text()
 
-document.getElementById("userInput").value="";
-}
+chat.innerHTML+=`<div class="bot"><span>${data}</span></div>`
+
+document.getElementById("msg").value=""
+
+chat.scrollTop=chat.scrollHeight
+
+})
 
 </script>
 
