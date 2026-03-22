@@ -1,15 +1,7 @@
-from flask import Flask, render_template, request, jsonify
-from dotenv import load_dotenv
-import os
-import google.generativeai as genai
-
-load_dotenv()
+from flask import Flask, render_template, request
+import ollama
 
 app = Flask(__name__)
-
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
-model = genai.GenerativeModel("gemini-1.5-flash")
 
 @app.route("/")
 def home():
@@ -17,29 +9,16 @@ def home():
 
 @app.route("/get", methods=["POST"])
 def chatbot():
+    user_message = request.form["msg"]
 
-    user_input = request.form["msg"]
+    response = ollama.chat(
+        model="llama3",
+        messages=[{"role": "user", "content": user_message}]
+    )
 
-    prompt = f"""
-You are an AI assistant for INGRES (Information and Guidance Response System).
+    reply = response["message"]["content"]
 
-Help users with:
-- login problems
-- service information
-- complaint registration
-- contacting support
-
-User question: {user_input}
-"""
-
-    try:
-        response = model.generate_content(prompt)
-        reply = response.text
-
-    except Exception as e:
-        reply = "AI service unavailable."
-
-    return jsonify(reply)
+    return reply
 
 if __name__ == "__main__":
     app.run(debug=True)
