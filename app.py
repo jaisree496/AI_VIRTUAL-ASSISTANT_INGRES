@@ -13,7 +13,7 @@ def chatbot():
 
     response = ollama.chat(
         model="llama3",
-        messages=[{"role": "user", "content": user_message}]
+        messages=[{"role": "user", "content": user_message}] 
     )
 
     reply = response["message"]["content"]
